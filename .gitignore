@@ -1,0 +1,15 @@
+# Generic files
+.DS_Store
+
+# Data files
+**.xls*
+**.parquet
+**.csv
+
+# Testing files
+test.ipynb
+
+# Python
+__pycache__
+src/py/.envrc
+src/py/.python-version

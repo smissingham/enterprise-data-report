@@ -18,7 +18,9 @@ init() {
   cd "$DIR_SRC_PY" || exit # Step into python src path
 
   # Activate the venv on entry using direnv
-  echo ". .venv/bin/activate" >".envrc"
+  echo "
+    . .venv/bin/activate
+  " >".envrc"
 
   # Create new pyproject if not exists
   if [ ! -f "pyproject.toml" ]; then
@@ -38,9 +40,12 @@ install() {
   cd "$DIR_SRC_PY" || exit # Step into python src path
 
   # Python base development deps
-  uv add \
+  uv add --dev \
     ipykernel \
-    jupyter
+    jupyter \
+    rich \
+    ruff \
+    ty
 
   # Python data handling deps
   uv add \
@@ -49,18 +54,20 @@ install() {
 
   # Python file i/o handling deps
   uv add \
+    openpyxl \
     fastexcel \
     xlsxwriter
 
   # Python exploratory data analysis deps
   uv add \
-    pygwalker
+    pygwalker \
+    streamlit
 
   cd - || exit # Create and step into python src path
 }
 
 # Resync all dependency installations
-sync() {
+sync_dev() {
   init
   install
 
@@ -93,7 +100,7 @@ reset_dev() {
     cd - || exit # Create and step into python src path
   fi
 
-  sync
+  sync_dev
 }
 
 # Purges all files related to development
@@ -109,5 +116,5 @@ if [ -n "$1" ]; then
 # Otherwise, run standard setup & execution procedure
 else
   clone
-  sync
+  sync_dev
 fi
