@@ -7,13 +7,49 @@ from lib.settings import get_setting, Setting
 
 def redetermine_types(df: pl.DataFrame) -> pl.DataFrame:
     """Intelligently redetermine better data types for columns in dataframe"""
-    return df.with_columns(
-        [
-            pl.col(col).cast(pl.Categorical)
-            if df[col].dtype == pl.Utf8 and df[col].n_unique() / df.height < 0.5
-            else pl.col(col)
-            for col in df.columns
-        ]
+    money_pattern_match: str = r"^-?\d*\.?\d+$"
+    money_pattern_strip: str = r"[()$]"
+    return (
+        df.with_columns(
+            [  # Cast to number if all columns can safely convert
+                pl.col(col).cast(pl.Decimal)
+                if df[col].dtype == pl.Utf8
+                and df[col]
+                .str.replace_all(money_pattern_strip, "")
+                .cast(pl.Decimal, strict=False)
+                .is_not_null()
+                .all()
+                else pl.col(col)
+                for col in df.columns
+            ]
+        )
+        .with_columns(
+            [  # Cast to number if the field is a money pattern and can convert if chars are removed
+                pl.when(pl.col(col).str.contains(money_pattern_match))
+                .then(
+                    pl.col(col)
+                    .str.replace_all(money_pattern_strip, "")
+                    .cast(pl.Decimal)
+                )
+                .otherwise(pl.col(col).cast(pl.Decimal))
+                if df[col].dtype == pl.Utf8
+                and df[col]
+                .str.replace_all(money_pattern_strip, "")
+                .cast(pl.Decimal, strict=False)
+                .is_not_null()
+                .all()
+                else pl.col(col)
+                for col in df.columns
+            ]
+        )
+        .with_columns(
+            [  # Cast to Categorical for string columns with low cardinality
+                pl.col(col).cast(pl.Categorical)
+                if df[col].dtype == pl.Utf8 and df[col].n_unique() / df.height < 0.5
+                else pl.col(col)
+                for col in df.columns
+            ]
+        )
     )
 
 
@@ -28,7 +64,8 @@ def sanitise_dataframe(df: pl.DataFrame) -> pl.DataFrame:
     )
 
     # Replace common null value representations with actual nulls
-    null_values = ["*", "N/A", "N.A.", "???", "NULL", "null"]
+    # TODO: Handle NA repetition better
+    null_values = ["*", "N/A", "N.A.", "#N/A", "???", "NULL", "null"]
     string_columns = [col for col in df.columns if df[col].dtype == pl.Utf8]
     if string_columns:
         df = df.with_columns(
@@ -55,7 +92,9 @@ def sanitise_dataframe(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def list_readable_files(directory: str, extensions: List[str] = None) -> List[str]:
+def list_readable_files(
+    directory: str, extensions: list[str] | None = None
+) -> list[str]:
     """List all readable files in a directory with optional extension filtering."""
     if extensions is None:
         extensions = [".parquet", ".csv", ".xlsx", ".json"]
