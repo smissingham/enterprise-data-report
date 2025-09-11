@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from enum import Enum
 
@@ -9,7 +10,7 @@ class Setting(Enum):
     DIR_DATA_OUTPUT = "DIR_DATA_OUTPUT"
 
 
-_DEFAULTS = {
+_DEFAULTS: dict[str, object] = {
     Setting.DIR_DATA_SOURCES.value: "../../datasources",
     Setting.DIR_DATA_STAGING.value: "../../datastaging",
     Setting.DIR_DATA_OUTPUT.value: "../../dataoutput",
@@ -19,8 +20,17 @@ _cached_settings = None
 
 
 def load_settings(config_file: str = "config.json") -> dict[str, object]:
+    # Find the project root by looking for pyproject.toml
+    current_dir = Path(__file__).parent
+    while current_dir != current_dir.parent:
+        if (current_dir / "pyproject.toml").exists():
+            break
+        current_dir = current_dir.parent
+    
+    config_path = current_dir / config_file
+    
     try:
-        with open(config_file, "r") as f:
+        with open(config_path, "r") as f:
             config = json.load(f)
             return {**_DEFAULTS, **config}
     except FileNotFoundError:
@@ -39,12 +49,21 @@ def save_settings(
 ) -> None:
     global _cached_settings
 
+    # Find the project root by looking for pyproject.toml
+    current_dir = Path(__file__).parent
+    while current_dir != current_dir.parent:
+        if (current_dir / "pyproject.toml").exists():
+            break
+        current_dir = current_dir.parent
+    
+    config_path = current_dir / config_file
+
     # Filter out default values
     filtered_settings = {
         k: v for k, v in settings.items() if k not in _DEFAULTS or v != _DEFAULTS[k]
     }
 
-    with open(config_file, "w") as f:
+    with open(config_path, "w") as f:
         json.dump(filtered_settings, f, indent=2)
 
     # Update cache

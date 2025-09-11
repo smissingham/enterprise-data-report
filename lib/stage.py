@@ -6,7 +6,7 @@ import openpyxl
 import polars as pl
 
 from lib.settings import get_setting, Setting
-from lib.data import sanitise_dataframe
+from lib.cleaning import df_clean_all
 
 
 def write_staging(df: pl.DataFrame, filename: str):
@@ -46,7 +46,7 @@ def stagefiles_refresh() -> None:
 
             for sheet in sheets:
                 try:
-                    df = sanitise_dataframe(
+                    df = df_clean_all(
                         pl.read_excel(filepath, sheet_name=sheet, raise_if_empty=False)
                     )
 

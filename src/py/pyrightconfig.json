@@ -1,7 +1,0 @@
-{
-  "include": [
-    "."
-  ],
-  "pythonPath": ".venv/bin/python",
-  "pythonVersion": "3.12"
-}

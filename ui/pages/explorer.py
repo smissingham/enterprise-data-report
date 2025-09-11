@@ -2,7 +2,12 @@ import streamlit as st
 import polars as pl
 from pygwalker.api.streamlit import StreamlitRenderer
 from lib.settings import get_setting, Setting
-from lib.data import get_staging_files, get_output_files, read_dataframe
+from lib.files import (
+    get_staging_files,
+    get_output_files,
+    read_dataframe,
+)
+from lib.insights import describe_with_dtypes
 from ui.lib.page_utils import set_page_title
 import warnings
 
@@ -39,14 +44,16 @@ if selected_file:
     if df is not None and selected_file:
         st.subheader("PyGWalker Data Visualisation")
 
-        # Create unique key for PyGWalker to force re-render on selection change
-        walker_key = f"{data_type}_{selected_file}"
-
-        pyg_app = StreamlitRenderer(df)
-        pyg_app.explorer(key=walker_key)
+        pyg_app = StreamlitRenderer(
+            df.to_pandas(),
+            default_tab="data",
+            spec_io_mode="rw",
+            kernel_computation=True,
+        )
+        pyg_app.explorer()
 
         st.subheader("Aggregate Summary")
-        st.write(df.describe())
+        st.dataframe(describe_with_dtypes(df))
     elif selected_file:
         st.error(f"Failed to load {selected_file}")
     else:

@@ -1,6 +1,6 @@
 import streamlit as st
 from ui.lib.page_utils import set_page_title
-from lib.data import get_source_files, get_staging_files, get_output_files
+from lib.files import get_source_files, get_staging_files, get_output_files
 
 set_page_title("🏠 Home")
 
