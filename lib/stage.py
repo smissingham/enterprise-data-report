@@ -1,4 +1,5 @@
 import os
+import re
 import glob
 import shutil
 from pathlib import Path
@@ -26,7 +27,8 @@ def stagefiles_refresh() -> None:
         dataframes = extract_dataframes(filepath)
         
         for df, identifier in dataframes:
-            write_staging(df, identifier)
+            filename = re.sub(r"[\s\$\.]", "", identifier)
+            write_staging(df, filename)
 
 def stagefiles_ensure() -> None:
     staging_dir = app_config.get_str(app_config.ConfigKeys.DIR_DATA_STAGING)

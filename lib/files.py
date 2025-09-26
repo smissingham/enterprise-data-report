@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 import openpyxl
 import app_config
-from lib.cleaning import df_clean_all
+from lib.cleaning.dataframes import df_clean_all
 
 def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
     filename = Path(filepath).name
@@ -26,7 +26,8 @@ def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
         for sheet in sheets:
             try:
                 df = pl.read_excel(filepath, sheet_name=sheet, raise_if_empty=False)
-                sheet_identifier = f"{sheet}"
+                filename_no_ext = Path(filepath).stem
+                sheet_identifier = f"{filename_no_ext}_{sheet}"
                 results.append((df, sheet_identifier))
                 print("Sheet extracted " + sheet)
                 
@@ -36,7 +37,8 @@ def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
     elif extension == ".csv":
         try:
             df = pl.read_csv(filepath)
-            results.append((df, filename))
+            filename_no_ext = Path(filepath).stem
+            results.append((df, filename_no_ext))
             print(f"CSV extracted {filename}")
         except Exception as e:
             print(f"Failed reading CSV file {filename}: {str(e)}")
@@ -44,7 +46,8 @@ def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
     elif extension == ".parquet":
         try:
             df = pl.read_parquet(filepath)
-            results.append((df, filename))
+            filename_no_ext = Path(filepath).stem
+            results.append((df, filename_no_ext))
             print(f"Parquet extracted {filename}")
         except Exception as e:
             print(f"Failed reading Parquet file {filename}: {str(e)}")

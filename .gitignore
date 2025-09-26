@@ -1,18 +1,15 @@
 # Generic files
 .DS_Store
 
-# Data files
-**.xls*
-**.parquet
-**.csv
-
-# Test config files
-configs/**
-
-# Testing files
-test.ipynb
-
 # Python
 .python-version
 __pycache__
 **/__init__.py
+
+# Test config files
+configs/**
+
+# Local Data
+data*/**
+
+
