@@ -1,7 +1,7 @@
 import streamlit as st
 import polars as pl
 from pygwalker.api.streamlit import StreamlitRenderer
-from lib.settings import get_setting, Setting
+from lib.config import get_setting, Config
 from lib.files import (
     get_staging_files,
     get_output_files,

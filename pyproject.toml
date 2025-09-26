@@ -13,5 +13,15 @@ dependencies = [
   "xlsxwriter>=3.2.5",
 ]
 
+[tool.pyrefly]
+project-includes = ["**/*"]
+project-excludes = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/*venv/**/*",
+]
+
 [dependency-groups]
 dev = ["ipykernel>=6.30.1", "jupyter>=1.1.1", "rich>=14.1.0"]
+
+[tool]
