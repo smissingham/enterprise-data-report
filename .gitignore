@@ -6,6 +6,9 @@
 **.parquet
 **.csv
 
+# Test config files
+configs/**
+
 # Testing files
 test.ipynb
 

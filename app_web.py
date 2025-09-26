@@ -1,11 +1,8 @@
-import os
-import glob
-
 import streamlit as st
-import pandas as pd
 import polars as pl
 from pygwalker.api.streamlit import StreamlitRenderer
 
+import app_config
 from lib.stage import stagefiles_ensure, stagefiles_refresh
 
 
@@ -15,6 +12,7 @@ def run_pyg(df: pl.DataFrame):
 
 
 if __name__ == "__main__":
+    app_config.init_config("app_config.yaml")
     stagefiles_ensure()
 
     st.set_page_config(

@@ -1,11 +1,10 @@
-from lib.config import load_config, get_setting, Config
-from lib.stage import *
+from lib.stage import stagefiles_refresh
 from lib.files import get_staging_files, read_dataframe
 from pathlib import Path
+import app_config
 import polars as pl
 import json
 import importlib.util
-import sys
 import shutil
 
 def load_column_determination():
@@ -20,7 +19,7 @@ def load_column_determination():
     return None
 
 def clear_output_directory():
-    output_dir = Path(get_setting(Config.DIR_DATA_OUTPUT))
+    output_dir = Path(app_config.get_str(app_config.ConfigKeys.DIR_DATA_OUTPUTS))
     if output_dir.exists():
         print(f"Clearing output directory: {output_dir}")
         shutil.rmtree(output_dir)
@@ -34,7 +33,7 @@ def process_staging_files():
         return
     
     staging_files = get_staging_files()
-    output_dir = Path(get_setting(Config.DIR_DATA_OUTPUT))
+    output_dir = Path(app_config.get_str(app_config.ConfigKeys.DIR_DATA_OUTPUTS))
     
     for filename in staging_files:
         df = read_dataframe("Staging", filename)
@@ -48,7 +47,7 @@ def process_staging_files():
             df.write_excel(str(excel_path))
             
             # Analyze composite keys
-            print(f"  Analyzing composite keys")
+            print("  Analyzing composite keys")
             key_columns = find_ranked_composite_keys(df)
             
             # Get describe stats for numeric and date columns
@@ -80,6 +79,7 @@ def process_staging_files():
                 "columns_by_type": columns_by_type,
                 "column_stats": describe_stats
             }
+
             
             # Write report JSON
             report_filename = "Report_" + Path(filename).stem + ".json"
@@ -88,10 +88,9 @@ def process_staging_files():
             with open(report_path, 'w') as f:
                 json.dump(report, f, indent=2)
 
-def main():
+    
+if __name__ == "__main__":
+    app_config.init_config("app_config.yaml")
     stagefiles_refresh()
     clear_output_directory()
     process_staging_files()
-    
-if __name__ == "__main__":
-    main()

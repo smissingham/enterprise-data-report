@@ -2,7 +2,7 @@ import polars as pl
 from pathlib import Path
 from typing import Optional
 import openpyxl
-from lib.config import get_setting, Config
+import app_config
 from lib.cleaning import df_clean_all
 
 def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
@@ -84,26 +84,26 @@ def list_readable_files(directory: str, extensions: list[str] | None = None) -> 
 
 
 def get_source_files() -> list[str]:
-    staging_dir = get_setting(Config.DIR_DATA_SOURCES)
-    return list_readable_files(staging_dir)
+    source_dir = app_config.get_str(app_config.ConfigKeys.DIR_DATA_INPUTS)
+    return list_readable_files(source_dir)
 
 
 def get_staging_files() -> list[str]:
-    staging_dir = get_setting(Config.DIR_DATA_STAGING)
+    staging_dir = app_config.get_str(app_config.ConfigKeys.DIR_DATA_STAGING)
     return list_readable_files(staging_dir)
 
 
 def get_output_files() -> list[str]:
-    output_dir = get_setting(Config.DIR_DATA_OUTPUT)
+    output_dir = app_config.get_str(app_config.ConfigKeys.DIR_DATA_OUTPUTS)
     return list_readable_files(output_dir)
 
 
 def read_dataframe(file_type: str, filename: str) -> Optional[pl.DataFrame]:
     try:
         if file_type == "Staging":
-            directory = get_setting(Config.DIR_DATA_STAGING)
+            directory = app_config.get_str(app_config.ConfigKeys.DIR_DATA_STAGING)
         elif file_type == "Output":
-            directory = get_setting(Config.DIR_DATA_OUTPUT)
+            directory = app_config.get_str(app_config.ConfigKeys.DIR_DATA_OUTPUTS)
         else:
             return None
 

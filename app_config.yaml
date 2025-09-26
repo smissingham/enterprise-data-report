@@ -1,0 +1,5 @@
+directories:
+  data:
+    inputs: "./datainputs"
+    staging: "./datastaging"
+    outputs: "./dataoutputs"

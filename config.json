@@ -1,6 +1,0 @@
-{
-  "DIR_DATA_SOURCES": "./datasources",
-  "DIR_DATA_STAGING": "./datastaging",
-  "DIR_DATA_OUTPUT": "./dataoutput"
-}
-
