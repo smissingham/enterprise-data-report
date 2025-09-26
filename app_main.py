@@ -49,14 +49,36 @@ def process_staging_files():
             
             # Analyze composite keys
             print(f"  Analyzing composite keys")
-            composite_keys = find_ranked_composite_keys(df)
+            key_columns = find_ranked_composite_keys(df)
+            
+            # Get describe stats for numeric and date columns
+            describe_df = df.select(pl.selectors.numeric() | pl.selectors.temporal())
+            if describe_df.width > 0:
+                stats_dict = describe_df.describe().to_dict(as_series=False)
+                # Restructure to be more readable: {column: {stat: value}}
+                describe_stats = {}
+                for col in stats_dict:
+                    if col != 'statistic':
+                        describe_stats[col] = dict(zip(stats_dict['statistic'], stats_dict[col]))
+            else:
+                describe_stats = {}
+            
+            # Group columns by type
+            columns_by_type = {}
+            for col, dtype in zip(df.columns, df.dtypes):
+                type_name = str(dtype)
+                if type_name not in columns_by_type:
+                    columns_by_type[type_name] = []
+                columns_by_type[type_name].append(col)
             
             # Create report
             report = {
                 "filename": filename,
                 "total_rows": df.height,
                 "total_columns": df.width,
-                "composite_keys": composite_keys
+                "key_columns": key_columns,
+                "columns_by_type": columns_by_type,
+                "column_stats": describe_stats
             }
             
             # Write report JSON
