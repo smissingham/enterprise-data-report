@@ -5,9 +5,12 @@ description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
   "fastexcel>=0.15.1",
+  "langchain>=0.3.27",
+  "langchain-openai>=0.3.33",
   "numpy>=2.3.3",
   "openpyxl>=3.1.5",
   "polars>=1.33.1",
+  "pydantic>=2.11.9",
   "pygwalker>=0.4.9.15",
   "streamlit>=1.49.1",
   "xlsxwriter>=3.2.5",
