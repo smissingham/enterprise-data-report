@@ -5,18 +5,19 @@ import openpyxl
 import app_config
 from lib.cleaning.dataframes import df_clean_all
 
+
 def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
     filename = Path(filepath).name
     results: list[tuple[pl.DataFrame, str]] = []
-    
+
     if filename.startswith("~$"):
         return results
-    
+
     extension = Path(filepath).suffix.lower()
-    
+
     if extension in [".xlsx", ".xls"]:
         print("Parsing excel file: " + filename)
-        
+
         try:
             workbook = openpyxl.load_workbook(filepath, read_only=True)
             sheets = workbook.sheetnames
@@ -30,10 +31,10 @@ def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
                 sheet_identifier = f"{filename_no_ext}_{sheet}"
                 results.append((df, sheet_identifier))
                 print("Sheet extracted " + sheet)
-                
+
             except Exception as e:
                 print(f"Failed extracting sheet {sheet}: {str(e)}")
-                
+
     elif extension == ".csv":
         try:
             df = pl.read_csv(filepath)
@@ -42,7 +43,7 @@ def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
             print(f"CSV extracted {filename}")
         except Exception as e:
             print(f"Failed reading CSV file {filename}: {str(e)}")
-            
+
     elif extension == ".parquet":
         try:
             df = pl.read_parquet(filepath)
@@ -51,23 +52,27 @@ def extract_dataframes(filepath: str) -> list[tuple[pl.DataFrame, str]]:
             print(f"Parquet extracted {filename}")
         except Exception as e:
             print(f"Failed reading Parquet file {filename}: {str(e)}")
-            
+
     else:
         print(f"Skipping unknown file type: {filepath}")
 
     # Filter and clean results before return
+    print("Cleaning Table Contents")
     results = [
-        (df_clean_all(df), name) 
-        for df, name in results 
-        if df is not None
-        and df.shape[1] > 0
+        (df_clean_all(df), name)
+        for df, name in results
+        if df is not None and df.shape[1] > 0
     ]
 
-    print(f"Writing {len(results)} Tables: \n{str.join("\n", [name for df, name in results])}")
+    print(
+        f"Writing {len(results)} Tables: \n{str.join("\n", [name for df, name in results])}"
+    )
     return results
 
 
-def list_readable_files(directory: str, extensions: list[str] | None = None) -> list[str]:
+def list_readable_files(
+    directory: str, extensions: list[str] | None = None
+) -> list[str]:
     if extensions is None:
         extensions = [".parquet", ".csv", ".xlsx", ".json"]
 

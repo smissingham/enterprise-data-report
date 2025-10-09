@@ -1757,6 +1757,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "fastexcel" },
+    { name = "ipython" },
     { name = "langchain" },
     { name = "langchain-openai" },
     { name = "numpy" },
@@ -1778,6 +1779,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastexcel", specifier = ">=0.15.1" },
+    { name = "ipython", specifier = ">=9.5.0" },
     { name = "langchain", specifier = ">=0.3.27" },
     { name = "langchain-openai", specifier = ">=0.3.33" },
     { name = "numpy", specifier = ">=2.3.3" },
